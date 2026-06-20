@@ -1,0 +1,6 @@
+*.log
+crash.log
+packer_cache/
+vars/*.pkrvars.hcl
+vars/*.auto.pkrvars.hcl
+!vars/example.pkrvars.hcl
