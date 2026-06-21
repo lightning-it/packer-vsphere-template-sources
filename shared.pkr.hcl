@@ -1,6 +1,4 @@
 locals {
-  ssh_password  = var.installer_password
-  http_bind     = trimspace(var.http_bind_address) != "" ? var.http_bind_address : null
   vm_version    = var.vm_version > 0 ? var.vm_version : null
   cluster       = trimspace(var.vsphere_cluster) != "" ? var.vsphere_cluster : null
   host          = trimspace(var.vsphere_host) != "" ? var.vsphere_host : null

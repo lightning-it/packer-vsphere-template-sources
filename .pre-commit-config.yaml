@@ -1,0 +1,11 @@
+---
+repos:
+  - repo: local
+    hooks:
+      - id: packer-test-suite
+        name: Packer test suite
+        language: system
+        entry: scripts/test-packer.sh
+        pass_filenames: false
+        files: >-
+          ^(packer\.pkr\.hcl|shared\.pkr\.hcl|rhel\.pkr\.hcl|ubuntu\.pkr\.hcl|variables\.pkr\.hcl|vars/example\.pkrvars\.hcl|installer-data/|scripts/(build-rhel|build-ubuntu|test-packer)\.sh)

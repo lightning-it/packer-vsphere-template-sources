@@ -8,8 +8,8 @@ fi
 
 release="$1"
 case "${release}" in
-  24.04) default_name="template-ubuntu-24-source" ;;
-  26.04) default_name="template-ubuntu-26-source" ;;
+  24.04) default_name="template-ubuntu-24-server" ;;
+  26.04) default_name="template-ubuntu-26-server" ;;
   *)
     printf 'Ubuntu release must be 24.04 or 26.04.\n' >&2
     exit 2
@@ -39,6 +39,11 @@ fi
 
 test -f "${var_file}"
 
+build_args=()
+if [ "${PACKER_FORCE:-false}" = "true" ]; then
+  build_args+=("-force")
+fi
+
 packer init .
 packer validate \
   -var-file="${var_file}" \
@@ -46,7 +51,8 @@ packer validate \
   -var="vm_name=${vm_name}" \
   .
 packer build \
-  -only='vsphere-iso.ubuntu' \
+  "${build_args[@]}" \
+  -only="ubuntu-${release}-server-vsphere.vsphere-iso.ubuntu" \
   -var-file="${var_file}" \
   -var="ubuntu_release=${release}" \
   -var="vm_name=${vm_name}" \

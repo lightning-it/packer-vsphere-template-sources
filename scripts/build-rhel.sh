@@ -45,7 +45,7 @@ packer validate \
   -var="vm_name=${vm_name}" \
   .
 packer build \
-  -only='vsphere-iso.rhel' \
+  -only="rhel-${major}-vsphere.vsphere-iso.rhel" \
   -var-file="${var_file}" \
   -var="rhel_major=${major}" \
   -var="vm_name=${vm_name}" \

@@ -2,25 +2,25 @@
 
 ## Repository Purpose
 
-This repository builds first-install Linux source objects for VMware vSphere
+This repository builds first-install Linux template objects for VMware vSphere
 with HashiCorp Packer.
 
-Supported source object names:
+Supported first-install object names:
 
 - `rhel-8-minimal`
 - `rhel-9-minimal`
 - `rhel-10-minimal`
-- `template-ubuntu-24-source`
-- `template-ubuntu-26-source`
+- `template-ubuntu-24-server`
+- `template-ubuntu-26-server`
 
-These are source objects for later Ansible normalization into final managed
+These are first-install objects for later Ansible normalization into final managed
 templates such as `template-rhel-8-minimal`, `template-rhel-9-minimal`, and
 `template-rhel-10-minimal`, `template-ubuntu-24-server`, and
 `template-ubuntu-26-server`.
 
 ## Common Practice Rules
 
-- Keep this repository generic and reusable. Do not commit LIT-only values,
+- Keep this repository generic and reusable. Do not commit organization-specific values,
   customer hostnames, real vCenter endpoints, real datastore paths, passwords,
   subscription credentials, tokens, or Vault data.
 - Keep secrets in ignored local var files or environment variables.
@@ -33,10 +33,11 @@ templates such as `template-rhel-8-minimal`, `template-rhel-9-minimal`, and
   Packer source unless there is a real release-specific reason to split files.
 - Keep `breakglass` as the default temporary installer account unless the user
   explicitly requests a different account.
-- Do not reintroduce `litadm` as a default account.
+- Use SSH key authentication for Packer guest access. Do not add SSH password
+  authentication for the temporary installer account.
 - Install `open-vm-tools` during OS installation so VMware guest
   operations work on first boot.
-- Keep the Packer source objects minimal. Final managed users, SSH keys,
+- Keep the Packer-built objects minimal. Final managed users, SSH keys,
   identity cleanup, and final vSphere template readiness belong to the Ansible
   template bootstrap workflow.
 - Keep RHEL install automation in Kickstart and Ubuntu install automation in
@@ -61,31 +62,42 @@ binaries into this repository.
 
 ## Validation
 
-Before finishing changes, run:
+Before finishing changes, run the repository test entry point:
+
+```bash
+scripts/test-packer.sh
+```
+
+The script is the source of truth for the Packer verification suite. It checks
+that `packer` is HashiCorp Packer, syntax-checks the build wrapper scripts,
+runs `packer init`, verifies formatting with `packer fmt -check -recursive .`,
+and validates the full supported OS matrix:
+
+- RHEL 8, RHEL 9, and RHEL 10 with source names `rhel-<major>-minimal`
+- Ubuntu 24.04 and Ubuntu 26.04 with template names
+  `template-ubuntu-<major>-server`
+
+Also run whitespace checks before finishing:
 
 ```bash
 git diff --check
-bash -n scripts/build-rhel.sh
-bash -n scripts/build-ubuntu.sh
-packer fmt -check -recursive .
-for major in 8 9 10; do
-  packer validate \
-    -var-file=vars/example.pkrvars.hcl \
-    -var="rhel_major=${major}" \
-    -var="vm_name=rhel-${major}-minimal" \
-    .
-done
-for release in 24.04 26.04; do
-  packer validate \
-    -var-file=vars/example.pkrvars.hcl \
-    -var="ubuntu_release=${release}" \
-    -var="vm_name=template-ubuntu-${release%.*}-source" \
-    .
-done
 ```
 
-If the host `packer` command is not HashiCorp Packer, report that limitation
-and use a temporary official Packer binary when practical.
+The pre-commit configuration runs `scripts/test-packer.sh` for changes to
+Packer HCL, installer data templates, example variables, and build/test
+scripts. When changing the test matrix or validation policy, update
+`scripts/test-packer.sh`, `.pre-commit-config.yaml`, and this section together.
+
+In comparison with Ansible tests, `packer validate` is like an Ansible syntax
+and input-contract check: it proves the template can be loaded and the required
+variables are coherent. `packer build` is closer to a Molecule or integration
+run against real infrastructure: it performs the install, creates the vSphere
+object, and can fail because of external state such as ISO paths, vCenter
+permissions, network reachability, datastore capacity, or guest boot timing.
+
+If the host `packer` command is not HashiCorp Packer, report that limitation.
+Use a temporary official Packer binary when practical, but do not vendor Packer
+binaries into this repository.
 
 ## File Ownership
 
@@ -94,8 +106,8 @@ and use a temporary official Packer binary when practical.
 - RHEL vSphere builder behavior belongs in `rhel.pkr.hcl`.
 - Ubuntu vSphere builder behavior belongs in `ubuntu.pkr.hcl`.
 - Inputs and defaults belong in `variables.pkr.hcl`.
-- Kickstart content belongs in `http/rhel/ks.cfg.pkrtpl.hcl`.
-- Ubuntu autoinstall content belongs in `http/ubuntu/`.
+- Kickstart content belongs in `installer-data/rhel/ks.cfg.pkrtpl.hcl`.
+- Ubuntu autoinstall content belongs in `installer-data/ubuntu/`.
 - Operator examples belong in `vars/example.pkrvars.hcl`.
 - Local operator var files must remain ignored by Git.
 
