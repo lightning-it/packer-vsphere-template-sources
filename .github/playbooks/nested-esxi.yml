@@ -1,0 +1,23 @@
+---
+- name: Manage nested ESXi Incus VM for Packer CI
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - role: lit.supplementary.incus_nested_esxi
+      vars:
+        incus_nested_esxi_state: "{{ nested_esxi_state | default('present') }}"
+        incus_nested_esxi_image: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_INCUS_IMAGE') }}"
+        incus_nested_esxi_instance_name: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_INSTANCE_NAME') }}"
+        incus_nested_esxi_endpoint: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_ENDPOINT') }}"
+        incus_nested_esxi_username: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_USERNAME') }}"
+        incus_nested_esxi_password: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_PASSWORD') }}"
+        incus_nested_esxi_cpu: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_CPU') | default('8', true) }}"
+        incus_nested_esxi_memory: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_MEMORY') | default('32GiB', true) }}"
+        incus_nested_esxi_root_disk_size: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_ROOT_DISK_SIZE') }}"
+        incus_nested_esxi_raw_qemu: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_RAW_QEMU') }}"
+        incus_nested_esxi_datacenter: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_DATACENTER') | default('ha-datacenter', true) }}"
+        incus_nested_esxi_datastore: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_DATASTORE') | default('datastore1', true) }}"
+        incus_nested_esxi_network: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_NETWORK') | default('VM Network', true) }}"
+        incus_nested_esxi_folder: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_FOLDER') }}"
+        incus_nested_esxi_destroy_existing: "{{ lookup('ansible.builtin.env', 'NESTED_ESXI_DESTROY_EXISTING') | default('false', true) | bool }}"
