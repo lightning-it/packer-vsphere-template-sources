@@ -1,17 +1,17 @@
 # packer-vsphere-template-sources
 
-Packer templates for building cross-platform vSphere source images, consumed by
-Ansible workflows that clone, bootstrap, and publish final templates.
+Packer templates for building cross-platform vSphere template images from
+vendor installation ISO media.
 
 The current implementation builds RHEL 8/9/10 and Ubuntu Server 24.04/26.04
-source objects from vendor installation ISO media.
+objects from vendor installation ISO media.
 
 ## Purpose
 
 Use Packer for the first unattended operating system installation from ISO.
-Then hand the installed source object to the Ansible vSphere template runbooks
-for managed user creation, identity cleanup, power-off, and template
-conversion.
+Then hand the installed object to the Ansible vSphere template runbooks for
+managed user creation, identity cleanup, power-off, and template conversion
+where needed.
 
 Recommended split:
 
@@ -21,30 +21,30 @@ Recommended split:
   data.
 - `open-vm-tools` is installed during OS installation so VMware guest
   operations work immediately after first boot.
-- Packer produces source objects such as `rhel-8-minimal`, `rhel-9-minimal`,
-  `rhel-10-minimal`, `template-ubuntu-24-source`, and
-  `template-ubuntu-26-source`.
-- Ansible clones or bootstraps those sources into final templates such as
+- Packer produces objects such as `rhel-8-minimal`, `rhel-9-minimal`,
+  `rhel-10-minimal`, `template-ubuntu-24-server`, and
+  `template-ubuntu-26-server`.
+- Ansible clones or bootstraps those objects into final templates such as
   `template-rhel-8-minimal`, `template-rhel-9-minimal`,
   `template-rhel-10-minimal`, `template-ubuntu-24-server`, and
   `template-ubuntu-26-server`.
 
-The source object may keep a temporary installer or repair login. The final
-template bootstrap account, for example `breakglass`, is managed by Ansible
-after the OS install is complete.
+The first-install object may keep a temporary installer or repair login that is
+reachable only by SSH key. The final template bootstrap account, for example
+`breakglass`, is managed by Ansible after the OS install is complete.
 
-## Source Object Contract
+## Template Object Contract
 
-| OS | Source object | Install automation | Final template |
+| OS | First-install object | Install automation | Final template |
 | --- | --- | --- | --- |
 | RHEL 8 | `rhel-8-minimal` | Kickstart | `template-rhel-8-minimal` |
 | RHEL 9 | `rhel-9-minimal` | Kickstart | `template-rhel-9-minimal` |
 | RHEL 10 | `rhel-10-minimal` | Kickstart | `template-rhel-10-minimal` |
-| Ubuntu Server 24.04 | `template-ubuntu-24-source` | autoinstall/cloud-init | `template-ubuntu-24-server` |
-| Ubuntu Server 26.04 | `template-ubuntu-26-source` | autoinstall/cloud-init | `template-ubuntu-26-server` |
+| Ubuntu Server 24.04 | `template-ubuntu-24-server` | autoinstall/cloud-init | `template-ubuntu-24-server` |
+| Ubuntu Server 26.04 | `template-ubuntu-26-server` | autoinstall/cloud-init | `template-ubuntu-26-server` |
 
-Do not reuse a source object whose installed OS does not match its name. Rebuild
-or replace the source first.
+Do not reuse an object whose installed OS does not match its name. Rebuild or
+replace it first.
 
 ## Expected Packer Inputs
 
@@ -53,12 +53,12 @@ environment variables:
 
 - vCenter hostname, username, password, datacenter, cluster, datastore, folder,
   and network
-- VM name for the source object
+- VM name for the first-install object
 - guest OS type for vSphere
 - ISO path or ISO URL
 - ISO checksum
 - CPU, memory, disk size, firmware, and secure boot settings
-- temporary installer username and password or root password
+- temporary installer username, SSH authorized key, and matching private key
 - RHEL major version for Kickstart selection or Ubuntu release selection
 - optional content library or template folder placement
 
@@ -71,7 +71,7 @@ variables.
 .
 |-- .gitignore
 |-- README.md
-|-- http/
+|-- installer-data/
 |   |-- rhel/
 |   |   `-- ks.cfg.pkrtpl.hcl
 |   `-- ubuntu/
@@ -111,18 +111,32 @@ chmod 0600 vars/local.pkrvars.hcl
 ```
 
 Edit `vars/local.pkrvars.hcl` and replace the vCenter, placement, ISO,
-checksum, installer password, and Ubuntu password hash values. The local file
-is ignored by Git.
+checksum, installer SSH key, and optional Ubuntu password hash values. The local
+file is ignored by Git.
 
-Validate the project:
+## SSH Access Model
+
+Packer connects to the temporary installer account with
+`installer_private_key_file`. The matching public key must be present in
+`installer_authorized_keys`.
+
+SSH password authentication is disabled in the guest. RHEL locks the temporary
+account password. Ubuntu autoinstall still requires an identity password field;
+the default `installer_password_hash = "!"` keeps password login locked.
+
+Validate the repository with the bundled preflight:
 
 ```bash
-packer init .
-packer fmt -check -recursive .
+./scripts/test-packer.sh
+```
+
+Validate with your real local values before building:
+
+```bash
 packer validate -var-file=vars/local.pkrvars.hcl .
 ```
 
-Build each RHEL source object:
+Build each RHEL first-install object:
 
 ```bash
 ./scripts/build-rhel.sh 8
@@ -130,7 +144,7 @@ Build each RHEL source object:
 ./scripts/build-rhel.sh 10
 ```
 
-Build each Ubuntu Server source object:
+Build each Ubuntu Server template object:
 
 ```bash
 ./scripts/build-ubuntu.sh 24.04
@@ -153,7 +167,7 @@ RHEL Kickstart must:
 - install and enable `open-vm-tools`
 - enable networking
 - create or enable the temporary repair login needed by the bootstrap runbook
-- configure SSH enough for troubleshooting
+- configure SSH key access and disable password authentication
 - clean package caches before shutdown
 - shut down cleanly when provisioning finishes
 
@@ -164,6 +178,7 @@ Ubuntu autoinstall must:
 - install and enable OpenSSH Server
 - create or enable the temporary repair login needed by the bootstrap runbook
 - set passwordless sudo for the temporary repair login
+- configure SSH key access and disable password authentication
 - clean package caches before shutdown
 - reboot into the installed system so Packer can verify SSH and VMware Tools
 

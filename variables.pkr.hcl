@@ -50,7 +50,7 @@ variable "vsphere_datastore" {
 
 variable "vsphere_folder" {
   type        = string
-  description = "VM folder where the source object is created."
+  description = "VM folder where the first-install object is created."
   default     = ""
 }
 
@@ -67,7 +67,7 @@ variable "vsphere_network_secondary" {
 
 variable "vm_name" {
   type        = string
-  description = "Source object name. Defaults to rhel-<major>-minimal."
+  description = "First-install object name. Defaults to rhel-<major>-minimal for RHEL and template-ubuntu-<major>-server for Ubuntu."
   default     = ""
 }
 
@@ -177,33 +177,87 @@ variable "ubuntu_guest_os_type" {
   default     = "ubuntu64Guest"
 }
 
+variable "ubuntu_installer_ip" {
+  type        = string
+  description = "Optional static IPv4 address for the Ubuntu installer environment."
+  default     = ""
+}
+
+variable "ubuntu_installer_netmask" {
+  type        = string
+  description = "Optional static IPv4 netmask for the Ubuntu installer environment."
+  default     = ""
+}
+
+variable "ubuntu_installer_prefix" {
+  type        = string
+  description = "Optional static IPv4 prefix length for Ubuntu autoinstall network config."
+  default     = ""
+}
+
+variable "ubuntu_installer_gateway" {
+  type        = string
+  description = "Optional default gateway for the Ubuntu installer environment."
+  default     = ""
+}
+
+variable "ubuntu_installer_nameserver" {
+  type        = string
+  description = "Optional DNS server for the Ubuntu installer environment."
+  default     = ""
+}
+
+variable "ubuntu_installer_interface" {
+  type        = string
+  description = "Network interface name used for static Ubuntu installer boot and autoinstall config."
+  default     = "ens33"
+}
+
+variable "ubuntu_installer_secondary_ip" {
+  type        = string
+  description = "Optional static IPv4 CIDR address for the second installed Ubuntu interface."
+  default     = ""
+}
+
+variable "ubuntu_installer_secondary_interface" {
+  type        = string
+  description = "Second network interface name used for static Ubuntu autoinstall config."
+  default     = "ens34"
+}
+
 variable "installer_username" {
   type        = string
   description = "Temporary installer/repair account created by Kickstart and used by Packer SSH."
   default     = "breakglass"
 }
 
-variable "installer_password" {
-  type        = string
-  description = "Temporary installer/repair password."
-}
-
 variable "installer_password_hash" {
   type        = string
-  description = "SHA-512 crypt password hash for Ubuntu autoinstall identity.password."
-  default     = ""
+  description = "SHA-512 crypt password hash for Ubuntu autoinstall identity.password. Use ! to keep password login locked."
+  default     = "!"
+  sensitive   = true
 }
 
 variable "installer_authorized_keys" {
   type        = list(string)
   description = "SSH public keys installed for the temporary installer/repair account."
   default     = []
+
+  validation {
+    condition     = length(var.installer_authorized_keys) > 0
+    error_message = "Set at least one installer_authorized_keys entry for SSH key authentication."
+  }
 }
 
 variable "installer_private_key_file" {
   type        = string
-  description = "Private key file used by Packer to SSH as the installer account. Leave empty to use password auth."
+  description = "Private key file used by Packer to SSH as the installer account."
   default     = ""
+
+  validation {
+    condition     = trimspace(var.installer_private_key_file) != ""
+    error_message = "Set installer_private_key_file to the private key matching installer_authorized_keys."
+  }
 }
 
 variable "rhsm_organization" {
@@ -323,7 +377,7 @@ variable "vm_version" {
 
 variable "convert_to_template" {
   type        = bool
-  description = "Convert the source VM to a vSphere template after Packer finishes."
+  description = "Convert the VM to a vSphere template after Packer finishes."
   default     = true
 }
 
@@ -344,17 +398,6 @@ variable "boot_command" {
   ]
 }
 
-variable "ubuntu_boot_command" {
-  type        = list(string)
-  description = "Boot command used to start Ubuntu Server autoinstall with NoCloud seed data."
-  default = [
-    "c<wait>",
-    "linux /casper/vmlinuz autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<enter>",
-    "initrd /casper/initrd<enter>",
-    "boot<enter>"
-  ]
-}
-
 variable "ssh_timeout" {
   type        = string
   description = "How long Packer waits for SSH after installation."
@@ -365,22 +408,4 @@ variable "shutdown_timeout" {
   type        = string
   description = "How long Packer waits for shutdown."
   default     = "15m"
-}
-
-variable "http_bind_address" {
-  type        = string
-  description = "Optional local bind address for Packer's Kickstart HTTP server."
-  default     = ""
-}
-
-variable "http_port_min" {
-  type        = number
-  description = "Minimum Packer HTTP server port."
-  default     = 8000
-}
-
-variable "http_port_max" {
-  type        = number
-  description = "Maximum Packer HTTP server port."
-  default     = 9000
 }

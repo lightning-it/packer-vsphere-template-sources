@@ -24,6 +24,12 @@ ubuntu2404_iso_checksum = "sha256:REPLACE-ME"
 ubuntu2604_iso_path     = "[datastore1] iso/ubuntu-26.04-live-server-amd64.iso"
 ubuntu2604_iso_checksum = "sha256:REPLACE-ME"
 
-installer_username      = "breakglass"
-installer_password      = "REPLACE-ME"
-installer_password_hash = "$6$REPLACE-ME-SHA512-CRYPT-HASH"
+installer_username = "breakglass"
+
+# Real builds require a readable private key and the matching public key.
+# Leave these empty only for `packer validate`.
+installer_private_key_file = ""
+installer_authorized_keys  = []
+
+# Ubuntu still requires an identity password field. Keep it locked by default.
+installer_password_hash = "!"

@@ -12,9 +12,16 @@ locals {
     }
   }
 
-  ubuntu          = local.ubuntu_media[var.ubuntu_release]
-  ubuntu_vm_name  = trimspace(var.vm_name) != "" ? var.vm_name : "template-ubuntu-${local.ubuntu.short_name}-source"
-  ubuntu_hostname = replace(local.ubuntu_vm_name, "_", "-")
+  ubuntu                        = local.ubuntu_media[var.ubuntu_release]
+  ubuntu_vm_name                = trimspace(var.vm_name) != "" ? var.vm_name : "template-ubuntu-${local.ubuntu.short_name}-server"
+  ubuntu_hostname               = replace(local.ubuntu_vm_name, "_", "-")
+  ubuntu_static_network_enabled = trimspace(var.ubuntu_installer_ip) != "" && trimspace(var.ubuntu_installer_netmask) != "" && trimspace(var.ubuntu_installer_gateway) != "" && trimspace(var.ubuntu_installer_prefix) != ""
+  ubuntu_boot_command_effective = [
+    "e<wait5>",
+    "<down><down><down><end>",
+    " autoinstall ds=nocloud",
+    "<leftCtrlOn>x<leftCtrlOff>"
+  ]
 }
 
 source "vsphere-iso" "ubuntu" {
@@ -55,35 +62,42 @@ source "vsphere-iso" "ubuntu" {
   cdrom_type   = "sata"
   remove_cdrom = true
 
-  http_bind_address = local.http_bind
-  http_port_min     = var.http_port_min
-  http_port_max     = var.http_port_max
-  http_content = {
-    "/meta-data" = templatefile("${path.root}/http/ubuntu/meta-data.pkrtpl.hcl", {
+  cd_label = "cidata"
+  cd_content = {
+    "meta-data" = templatefile("${path.root}/installer-data/ubuntu/meta-data.pkrtpl.hcl", {
       instance_id = local.ubuntu_vm_name
       host_name   = local.ubuntu_hostname
     })
-    "/user-data" = templatefile("${path.root}/http/ubuntu/user-data.pkrtpl.hcl", {
-      ubuntu_release          = var.ubuntu_release
-      vm_name                 = local.ubuntu_vm_name
-      host_name               = local.ubuntu_hostname
-      installer_username      = var.installer_username
-      installer_password_hash = var.installer_password_hash
-      timezone                = var.timezone
-      keyboard_layout         = var.keyboard_layout
-      locale                  = var.locale
+    "user-data" = templatefile("${path.root}/installer-data/ubuntu/user-data.pkrtpl.hcl", {
+      ubuntu_release            = var.ubuntu_release
+      vm_name                   = local.ubuntu_vm_name
+      host_name                 = local.ubuntu_hostname
+      installer_username        = var.installer_username
+      installer_password_hash   = var.installer_password_hash
+      installer_authorized_keys = var.installer_authorized_keys
+      timezone                  = var.timezone
+      keyboard_layout           = var.keyboard_layout
+      locale                    = var.locale
+      static_network_enabled    = local.ubuntu_static_network_enabled
+      installer_interface       = var.ubuntu_installer_interface
+      installer_ip              = var.ubuntu_installer_ip
+      installer_prefix          = var.ubuntu_installer_prefix
+      installer_gateway         = var.ubuntu_installer_gateway
+      installer_nameserver      = var.ubuntu_installer_nameserver
+      secondary_interface       = var.ubuntu_installer_secondary_interface
+      secondary_ip              = var.ubuntu_installer_secondary_ip
     })
   }
 
   boot_wait    = var.boot_wait
-  boot_command = var.ubuntu_boot_command
+  boot_command = local.ubuntu_boot_command_effective
 
-  communicator = "ssh"
-  ssh_username = var.installer_username
-  ssh_password = var.installer_password
-  ssh_timeout  = var.ssh_timeout
+  communicator         = "ssh"
+  ssh_username         = var.installer_username
+  ssh_private_key_file = var.installer_private_key_file
+  ssh_timeout          = var.ssh_timeout
 
-  shutdown_command = "echo '${local.ssh_password}' | sudo -S /sbin/shutdown -h now"
+  shutdown_command = "sudo -n /sbin/shutdown -h now"
   shutdown_timeout = var.shutdown_timeout
 
   convert_to_template = var.convert_to_template

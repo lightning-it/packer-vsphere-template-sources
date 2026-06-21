@@ -19,7 +19,7 @@ rhsm --organization="${rhsm_organization}" --activation-key="${rhsm_activation_k
 %{ endif ~}
 
 rootpw --lock
-user --name=${installer_username} --groups=wheel --plaintext --password=${installer_password}
+user --name=${installer_username} --groups=wheel --lock
 authselect --useshadow --passalgo=sha512
 
 selinux --enforcing
