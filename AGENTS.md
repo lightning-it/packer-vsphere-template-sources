@@ -20,7 +20,7 @@ templates such as `template-rhel-8-minimal`, `template-rhel-9-minimal`, and
 
 ## Common Practice Rules
 
-- Keep this repository generic and reusable. Do not commit LIT-only values,
+- Keep this repository generic and reusable. Do not commit organization-specific values,
   customer hostnames, real vCenter endpoints, real datastore paths, passwords,
   subscription credentials, tokens, or Vault data.
 - Keep secrets in ignored local var files or environment variables.
@@ -33,7 +33,6 @@ templates such as `template-rhel-8-minimal`, `template-rhel-9-minimal`, and
   Packer source unless there is a real release-specific reason to split files.
 - Keep `breakglass` as the default temporary installer account unless the user
   explicitly requests a different account.
-- Do not reintroduce `litadm` as a default account.
 - Use SSH key authentication for Packer guest access. Do not add SSH password
   authentication for the temporary installer account.
 - Install `open-vm-tools` during OS installation so VMware guest

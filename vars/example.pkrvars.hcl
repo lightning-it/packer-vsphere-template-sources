@@ -1,8 +1,8 @@
 # Copy to vars/local.pkrvars.hcl and replace all environment-specific values.
 # vars/local.pkrvars.hcl is ignored by Git.
 
-vsphere_server     = "vcenter.example.com"
-vsphere_username   = "administrator@vsphere.local"
+vsphere_server     = "vcenter.example.invalid"
+vsphere_username   = "administrator@example.invalid"
 vsphere_password   = "REPLACE-ME"
 vsphere_insecure   = true
 vsphere_datacenter = "Datacenter"

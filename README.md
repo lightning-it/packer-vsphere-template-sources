@@ -155,8 +155,8 @@ The wrapper runs `packer init`, `packer validate`, and `packer build`. To use a
 different var file:
 
 ```bash
-PACKER_VAR_FILE=vars/lit.local.pkrvars.hcl ./scripts/build-rhel.sh 9
-PACKER_VAR_FILE=vars/lit.local.pkrvars.hcl ./scripts/build-ubuntu.sh 24.04
+PACKER_VAR_FILE=vars/local.pkrvars.hcl ./scripts/build-rhel.sh 9
+PACKER_VAR_FILE=vars/local.pkrvars.hcl ./scripts/build-ubuntu.sh 24.04
 ```
 
 ## Installer Requirements
