@@ -74,8 +74,8 @@ runs `packer init`, verifies formatting with `packer fmt -check -recursive .`,
 and validates the full supported OS matrix:
 
 - RHEL 8, RHEL 9, and RHEL 10 with source names `rhel-<major>-minimal`
-- Ubuntu 24.04 and Ubuntu 26.04 with template names
-  `template-ubuntu-<major>-server`
+- Ubuntu 24.04 and Ubuntu 26.04 with source names
+  `template-ubuntu-<major>-source`
 
 Also run whitespace checks before finishing:
 
@@ -84,9 +84,106 @@ git diff --check
 ```
 
 The pre-commit configuration runs `scripts/test-packer.sh` for changes to
-Packer HCL, installer data templates, example variables, and build/test
+Packer HCL, installer HTTP templates, example variables, and build/test
 scripts. When changing the test matrix or validation policy, update
 `scripts/test-packer.sh`, `.pre-commit-config.yaml`, and this section together.
+
+## Heavy Build Verification
+
+A real Packer build is a heavy integration test. It is gated to run only for
+the `develop` -> `main` branch flow or manual workflow dispatch. The automated
+GitHub Actions path runs on a self-hosted Ubuntu runner with Incus and nested
+virtualization labels, creates a temporary nested ESXi VM, runs Packer against
+that standalone ESXi API endpoint, and destroys the Incus VM afterward.
+
+It requires a private prepared ESXi Incus image, private runner access,
+datastore/network placement, reachable ISO media, and enough time for an
+unattended OS install. It creates or refreshes the vSphere source image object,
+so do not run it from normal pre-commit.
+
+Use the heavy test wrapper for an intentional image build:
+
+```bash
+PACKER_SOURCE_BRANCH=develop \
+PACKER_TARGET_BRANCH=main \
+PACKER_BUILD_KIND=rhel \
+PACKER_BUILD_VERSION=8 \
+PACKER_BUILD_VM_NAME=rhel-8-minimal \
+PACKER_VAR_FILE=vars/local.pkrvars.hcl \
+scripts/test-packer-heavy.sh
+```
+
+For Ubuntu:
+
+```bash
+PACKER_SOURCE_BRANCH=develop \
+PACKER_TARGET_BRANCH=main \
+PACKER_BUILD_KIND=ubuntu \
+PACKER_BUILD_VERSION=24.04 \
+PACKER_BUILD_VM_NAME=template-ubuntu-24-source \
+PACKER_VAR_FILE=vars/local.pkrvars.hcl \
+scripts/test-packer-heavy.sh
+```
+
+The same heavy build is available as a manual pre-commit hook:
+
+```bash
+PACKER_SOURCE_BRANCH=develop \
+PACKER_TARGET_BRANCH=main \
+PACKER_BUILD_KIND=rhel \
+PACKER_BUILD_VERSION=8 \
+PACKER_VAR_FILE=vars/local.pkrvars.hcl \
+pre-commit run packer-heavy-build --hook-stage manual
+```
+
+The wrapper checks `PACKER_SOURCE_BRANCH` and `PACKER_TARGET_BRANCH` first.
+It also recognizes GitHub Actions `GITHUB_HEAD_REF`/`GITHUB_BASE_REF` and
+GitLab merge request variables. If the branch flow is anything other than
+`develop` -> `main`, the heavy test exits successfully with a skip message.
+
+The public repository owns the automatic nested ESXi workflow in
+`.github/workflows/packer-heavy-nested-esxi.yml`. The workflow must stay guarded
+so it does not run on untrusted fork pull requests. The Incus VM lifecycle is
+owned by the `lit.supplementary.incus_nested_esxi` collection role and invoked
+through `.github/playbooks/nested-esxi.yml`; keep reusable Incus/ESXi lifecycle
+logic in that role instead of growing the workflow script. Keep the ESXi Incus
+image alias, ESXi credentials, ISO paths, checksums, and installer passwords in
+GitHub Actions secrets or repository variables.
+
+Required runner labels:
+
+```text
+self-hosted, linux, x64, ubuntu, incus, nested-virt
+```
+
+Required secrets:
+
+- `PACKER_NESTED_ESXI_USERNAME`
+- `PACKER_NESTED_ESXI_PASSWORD`
+- `PACKER_INSTALLER_PASSWORD`
+- `PACKER_INSTALLER_PASSWORD_HASH` for Ubuntu builds
+
+Required or commonly used repository variables:
+
+- `PACKER_NESTED_ESXI_INCUS_IMAGE`
+- `PACKER_NESTED_ESXI_ENDPOINT`
+- `PACKER_NESTED_ESXI_CPU`
+- `PACKER_NESTED_ESXI_MEMORY`
+- `PACKER_NESTED_ESXI_ROOT_DISK_SIZE`
+- `PACKER_NESTED_ESXI_RAW_QEMU`
+- `PACKER_NESTED_ESXI_DATASTORE`
+- `PACKER_NESTED_ESXI_NETWORK`
+- `PACKER_RHEL8_ISO_PATH`
+- `PACKER_RHEL8_ISO_CHECKSUM`
+- `PACKER_RHEL9_ISO_PATH`
+- `PACKER_RHEL9_ISO_CHECKSUM`
+- `PACKER_RHEL10_ISO_PATH`
+- `PACKER_RHEL10_ISO_CHECKSUM`
+- `PACKER_UBUNTU2404_ISO_PATH`
+- `PACKER_UBUNTU2404_ISO_CHECKSUM`
+- `PACKER_UBUNTU2604_ISO_PATH`
+- `PACKER_UBUNTU2604_ISO_CHECKSUM`
+- `PACKER_INSTALLER_USERNAME`
 
 In comparison with Ansible tests, `packer validate` is like an Ansible syntax
 and input-contract check: it proves the template can be loaded and the required

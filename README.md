@@ -1,10 +1,10 @@
 # packer-vsphere-template-sources
 
-Packer templates for building cross-platform vSphere template images from
-vendor installation ISO media.
+Packer templates for building cross-platform vSphere source images, consumed by
+Ansible workflows that clone, bootstrap, and publish final templates.
 
 The current implementation builds RHEL 8/9/10 and Ubuntu Server 24.04/26.04
-objects from vendor installation ISO media.
+source objects from vendor installation ISO media.
 
 ## Purpose
 
