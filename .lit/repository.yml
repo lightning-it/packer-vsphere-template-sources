@@ -1,0 +1,30 @@
+schema_version: 1
+managed_by: lightning-it/shared-assets
+repository: packer-vsphere-template-sources
+visibility: public
+repository_type: packer_template
+release_type: none
+artifact_type: packer_template
+test_profiles:
+- pre-commit
+- packer-fmt
+- packer-validate
+os_matrix:
+- ubuntu-latest
+product_matrix:
+- rhel-8
+- rhel-9
+- rhel-10
+- ubuntu-24.04
+- ubuntu-26.04
+- vsphere
+publishing_targets: []
+galaxy_publish: false
+quay_publish: false
+release_evidence: false
+heavy_incus_required: false
+readme_badges:
+- pre-commit
+- license
+workflows:
+  ci: repository-quality.yml
