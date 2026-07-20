@@ -21,15 +21,15 @@ Publishing targets: `none`.
 
 ## Supported and Tested Platforms
 
-| Platform / Product | Status | Validation |
-|---|---:|---|
-| ubuntu-latest | Supported | Packer validate |
-| rhel-8 | Tested where applicable | Packer validate |
-| rhel-9 | Tested where applicable | Packer validate |
-| rhel-10 | Tested where applicable | Packer validate |
-| ubuntu-24.04 | Tested where applicable | Packer validate |
-| ubuntu-26.04 | Tested where applicable | Packer validate |
-| vsphere | Tested where applicable | Packer validate |
+| Platform / Product |                  Status | Validation      |
+| ------------------ | ----------------------: | --------------- |
+| ubuntu-latest      |               Supported | Packer validate |
+| rhel-8             | Tested where applicable | Packer validate |
+| rhel-9             | Tested where applicable | Packer validate |
+| rhel-10            | Tested where applicable | Packer validate |
+| ubuntu-24.04       | Tested where applicable | Packer validate |
+| ubuntu-26.04       | Tested where applicable | Packer validate |
+| vsphere            | Tested where applicable | Packer validate |
 
 <!-- END LIT_SHARED_RELEASE_MODEL -->
 
