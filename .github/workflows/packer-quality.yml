@@ -1,0 +1,27 @@
+---
+name: Packer Quality
+
+on:
+  push:
+    branches: ["develop", "main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: packer / quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Install Packer
+        uses: hashicorp/setup-packer@ce93c3c08a6c2ff2275bf4b54ff0d9a75f6c9789 # v3.4.0
+        with:
+          version: "1.14.3"
+      - name: Validate every supported template input
+        run: bash scripts/test-packer.sh
