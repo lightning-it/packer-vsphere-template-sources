@@ -1,0 +1,5 @@
+* @lightning-it/ent:release
+/.github/ @lightning-it/ent:release
+/*.pkr.hcl @lightning-it/ent:release
+/scripts/ @lightning-it/ent:release
+/vars/ @lightning-it/ent:release
