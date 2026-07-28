@@ -141,14 +141,15 @@ It also recognizes GitHub Actions `GITHUB_HEAD_REF`/`GITHUB_BASE_REF` and
 GitLab merge request variables. If the branch flow is anything other than
 `develop` -> `main`, the heavy test exits successfully with a skip message.
 
-The public repository owns the automatic nested ESXi workflow in
-`.github/workflows/packer-heavy-nested-esxi.yml`. The workflow must stay guarded
-so it does not run on untrusted fork pull requests. The Incus VM lifecycle is
-owned by the `lit.supplementary.incus_nested_esxi` collection role and invoked
-through `.github/playbooks/nested-esxi.yml`; keep reusable Incus/ESXi lifecycle
-logic in that role instead of growing the workflow script. Keep the ESXi Incus
-image alias, ESXi credentials, ISO paths, checksums, and installer passwords in
-GitHub Actions secrets or repository variables.
+The public repository owns the component entry point and guarded caller in
+`.github/workflows/packer-heavy-nested-esxi.yml`. GitHub Actions orchestration
+is delegated to the SHA-pinned reusable Packer profile in `modulix-validation`;
+do not add infrastructure execution steps to the caller. The Incus VM lifecycle
+is owned by the `lit.supplementary.incus_nested_esxi` collection role and
+invoked through `.github/playbooks/nested-esxi.yml`; keep reusable Incus/ESXi
+lifecycle logic in that role. Keep the ESXi Incus image alias, ESXi
+credentials, ISO paths, checksums, and installer passwords in GitHub Actions
+secrets or repository variables.
 
 Required runner labels:
 

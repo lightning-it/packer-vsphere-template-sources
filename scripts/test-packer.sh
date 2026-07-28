@@ -13,7 +13,8 @@ if [ "${packer_path}" = "/usr/sbin/packer" ]; then
   exit 127
 fi
 
-if ! packer version 2>/dev/null | grep -q 'Packer v'; then
+packer_version="$(packer version 2>/dev/null)"
+if ! grep -q 'Packer v' <<<"${packer_version}"; then
   printf 'The packer command in PATH does not appear to be HashiCorp Packer.\n' >&2
   printf 'Install HashiCorp Packer or adjust PATH before running this script.\n' >&2
   exit 127
