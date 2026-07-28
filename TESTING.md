@@ -49,11 +49,11 @@ Heavy Incus tests require an Ubuntu host or runner with Incus available, suitabl
 In accordance with
 [ADR 2886566105](https://wiki.cloud.l-it.io/wiki/spaces/LIT/pages/2886566105),
 this repository retains the Packer templates, assertions, nested-ESXi entry
-point, and owner-scoped cleanup. The GitHub workflow delegates Heavy execution
-exclusively to a full-commit-pinned reusable workflow in `modulix-validation`.
-That workflow checks out the exact candidate SHA and emits normalized evidence
-for the Heavy profile, nested-ESXi scenario, and selected platform. An
-applicable Heavy run cannot pass by being skipped.
+point, and owner-scoped cleanup. Heavy orchestration is owned exclusively by
+the full-commit-pinned reusable workflow contract in `modulix-validation`.
+The protected runtime must supply the nested-ESXi credentials and
+infrastructure declaration. This public repository must not define an
+independent Heavy promotion gate that cannot access that protected runtime.
 
 ## Interpreting GitHub Actions
 
