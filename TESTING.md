@@ -46,15 +46,6 @@ bash scripts/wunder-devtools-ee.sh true
 
 Heavy Incus tests require an Ubuntu host or runner with Incus available, suitable images, and repository-specific scenario configuration. Heavy tests must use sanitized inputs and must not rely on private inventory values.
 
-In accordance with
-[ADR 2886566105](https://wiki.cloud.l-it.io/wiki/spaces/LIT/pages/2886566105),
-this repository retains the Packer templates, assertions, nested-ESXi entry
-point, and owner-scoped cleanup. The GitHub workflow delegates Heavy execution
-exclusively to a full-commit-pinned reusable workflow in `modulix-validation`.
-That workflow checks out the exact candidate SHA and emits normalized evidence
-for the Heavy profile, nested-ESXi scenario, and selected platform. An
-applicable Heavy run cannot pass by being skipped.
-
 ## Interpreting GitHub Actions
 
 The GitHub Actions matrix is the primary dashboard. Job names should expose the repository class, OS/runtime, and profile, for example `ansible / rhel9 / molecule-heavy-incus` or `container / ubuntu / build-smoke`.
