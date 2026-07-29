@@ -41,4 +41,8 @@ jobs:
       build-kind: ${{ inputs.build_kind || 'rhel' }}
       build-version: ${{ inputs.build_version || '8' }}
       environment-name: packer-heavy
-    secrets: inherit
+    secrets:
+      PACKER_NESTED_ESXI_USERNAME: ${{ secrets.PACKER_NESTED_ESXI_USERNAME }}
+      PACKER_NESTED_ESXI_PASSWORD: ${{ secrets.PACKER_NESTED_ESXI_PASSWORD }}
+      PACKER_INSTALLER_PASSWORD: ${{ secrets.PACKER_INSTALLER_PASSWORD }}
+      PACKER_INSTALLER_PASSWORD_HASH: ${{ secrets.PACKER_INSTALLER_PASSWORD_HASH }}
