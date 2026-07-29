@@ -35,7 +35,7 @@ jobs:
         github.event.pull_request.draft == false &&
         github.event.pull_request.head.repo.full_name == github.repository
       )
-    uses: lightning-it/modulix-validation/.github/workflows/packer-nested-esxi-profile.yml@6a78dcbd0931c7184336e7a5c6d11e6bfcc4b2d7
+    uses: lightning-it/modulix-validation/.github/workflows/packer-nested-esxi-profile.yml@9045b77445e33471c9143aa7b9d2c18ffbc55f86
     with:
       source-sha: ${{ github.event.pull_request.head.sha || github.sha }}
       build-kind: ${{ inputs.build_kind || 'rhel' }}
