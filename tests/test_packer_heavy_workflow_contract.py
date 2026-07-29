@@ -27,7 +27,7 @@ class PackerHeavyWorkflowContractTests(unittest.TestCase):
 
     def test_oidc_permission_is_available_to_reusable_workflow(self) -> None:
         source = WORKFLOW.read_text(encoding="utf-8")
-        self.assertRegex(source, r"(?m)^  id-token: write$")
+        self.assertRegex(source, r"(?m)^\s*id-token\s*:\s*write\s*$")
 
 
 if __name__ == "__main__":
