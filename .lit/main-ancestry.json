@@ -1,0 +1,7 @@
+{
+  "develop_parent_sha": "54bd2908d5434724ab8f75eb0b2cc8803195d096",
+  "main_sha": "fd20eff079d16a24cadc111932b0578554c8b2c7",
+  "purpose": "Bind the reviewed main ancestry backmerge.",
+  "repository": "lightning-it/packer-vsphere-template-sources",
+  "schema_version": 1
+}
