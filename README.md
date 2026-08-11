@@ -21,15 +21,15 @@ Publishing targets: `none`.
 
 ## Supported and Tested Platforms
 
-| Platform / Product | Status | Validation |
-|---|---:|---|
-| ubuntu-latest | Supported | Packer validate |
-| rhel-8 | Tested where applicable | Packer validate |
-| rhel-9 | Tested where applicable | Packer validate |
-| rhel-10 | Tested where applicable | Packer validate |
-| ubuntu-24.04 | Tested where applicable | Packer validate |
-| ubuntu-26.04 | Tested where applicable | Packer validate |
-| vsphere | Tested where applicable | Packer validate |
+| Platform / Product |                  Status | Validation      |
+| ------------------ | ----------------------: | --------------- |
+| ubuntu-latest      |               Supported | Packer validate |
+| rhel-8             | Tested where applicable | Packer validate |
+| rhel-9             | Tested where applicable | Packer validate |
+| rhel-10            | Tested where applicable | Packer validate |
+| ubuntu-24.04       | Tested where applicable | Packer validate |
+| ubuntu-26.04       | Tested where applicable | Packer validate |
+| vsphere            | Tested where applicable | Packer validate |
 
 <!-- END LIT_SHARED_RELEASE_MODEL -->
 
@@ -37,6 +37,7 @@ Publishing targets: `none`.
 
 [![CI](https://github.com/lightning-it/packer-vsphere-template-sources/actions/workflows/repository-quality.yml/badge.svg?branch=develop)](https://github.com/lightning-it/packer-vsphere-template-sources/actions/workflows/repository-quality.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/lightning-it/packer-vsphere-template-sources/badge)](https://scorecard.dev/viewer/?uri=github.com/lightning-it/packer-vsphere-template-sources)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/13889/badge)](https://www.bestpractices.dev/projects/13889)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 <!-- END LIT_QUALITY_BADGES -->

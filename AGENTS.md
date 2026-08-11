@@ -141,14 +141,15 @@ It also recognizes GitHub Actions `GITHUB_HEAD_REF`/`GITHUB_BASE_REF` and
 GitLab merge request variables. If the branch flow is anything other than
 `develop` -> `main`, the heavy test exits successfully with a skip message.
 
-The public repository owns the automatic nested ESXi workflow in
-`.github/workflows/packer-heavy-nested-esxi.yml`. The workflow must stay guarded
-so it does not run on untrusted fork pull requests. The Incus VM lifecycle is
-owned by the `lit.supplementary.incus_nested_esxi` collection role and invoked
-through `.github/playbooks/nested-esxi.yml`; keep reusable Incus/ESXi lifecycle
-logic in that role instead of growing the workflow script. Keep the ESXi Incus
-image alias, ESXi credentials, ISO paths, checksums, and installer passwords in
-GitHub Actions secrets or repository variables.
+The public repository owns the component entry point and guarded caller in
+`.github/workflows/packer-heavy-nested-esxi.yml`. GitHub Actions orchestration
+is delegated to the SHA-pinned reusable Packer profile in `modulix-validation`;
+do not add infrastructure execution steps to the caller. The Incus VM lifecycle
+is owned by the `lit.supplementary.incus_nested_esxi` collection role and
+invoked through `.github/playbooks/nested-esxi.yml`; keep reusable Incus/ESXi
+lifecycle logic in that role. Keep the ESXi Incus image alias, ESXi
+credentials, ISO paths, checksums, and installer passwords in GitHub Actions
+secrets or repository variables.
 
 Required runner labels:
 
@@ -216,3 +217,28 @@ binaries into this repository.
 - Prefer explicit variables and clear validation over hidden environment
   assumptions.
 - Keep README examples runnable with the repository layout.
+
+<!-- LIT AI task governance: start -->
+
+## AI model and token governance
+
+Apply `LIT-GEN-GDR-GOV-30-Budget-Conscious-AI-Model-Selection` to every
+substantive Codex or ChatGPT-assisted task. Before investigation, planning,
+tool use, implementation, or delegation, record a compact task profile in the
+task chat: work item, risk (`low`, `normal`, or `high`), smallest sufficient
+model/reasoning choice, rationale, and a concrete escalation condition.
+
+- Use the balanced, lowest reliable capability by default. Escalate to a
+  premium/frontier model or higher reasoning only for a high-risk decision,
+  complex architecture/debugging/dependencies, or a documented focused failure
+  of the standard approach. Restrict that escalation to the difficult subtask.
+- Never use Speed Mode. Do not replace verification with a more expensive model
+  or sacrifice quality to reduce elapsed time.
+- Retrieve only relevant issue, files, logs, and source records; avoid broad
+  repository or chat-history loading, speculative analysis, and unbounded retry
+  loops. Delegate only independent, bounded work that reduces total effort.
+- For GitHub or Jira work, include the task profile in the issue/task record
+  when AI assistance materially affects execution. Close with verification and
+  remaining risks; preserve durable decisions in Confluence, Jira, or GitHub.
+
+<!-- LIT AI task governance: end -->
