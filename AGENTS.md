@@ -250,6 +250,7 @@ binaries into this repository.
 <!-- LIT REP-60 review governance: end -->
 
 <!-- LIT REP-60 evidence lifecycle: start -->
+
 ### REP-60 evidence lifecycle (mandatory)
 
 - Every pull request into `develop` retains its exact-final-head native GitHub
@@ -265,6 +266,7 @@ binaries into this repository.
 - Agents, workflows, and repository-local rules MUST NOT duplicate that durable
   evidence per `develop` pull request or invoke local AI to create evidence.
   Repository-local rules may only make this lifecycle stricter.
+
 <!-- LIT REP-60 evidence lifecycle: end -->
 
 <!-- LIT Devtools container governance: start -->
